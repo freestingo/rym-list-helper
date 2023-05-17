@@ -18,49 +18,49 @@ const LEFT = 'left';
 const MIDDLE = 'middle';
 const RIGHT = 'right';
 const formatButtonStyles = {
-	bold: 'font-style: bold',
-	italic: 'font-style: italic',
-	underline: 'text-decoration: underline',
-	strikethrough: 'text-decoration: line-through',
-	mono: 'font-family: monospace',
-	color: '', // TODO: add background color or something
-	blockquote: 'margin-left: 10px',
-	quote: '',
-	note: '',
-	link: '',
+  bold: 'font-style: bold',
+  italic: 'font-style: italic',
+  underline: 'text-decoration: underline',
+  strikethrough: 'text-decoration: line-through',
+  mono: 'font-family: monospace',
+  color: '', // TODO: add background color or something
+  blockquote: 'margin-left: 10px',
+  quote: '',
+  note: '',
+  link: '',
 };
 const colorDropdownOptions = [
     ['tomato', 'red']
-	, ['orange', 'orange']
+  , ['orange', 'orange']
   , ['springgreen', 'green']
 ];
 
 const createFormatButton = (label, markupTag, flexSide) => {
-	const button = document.createElement('div');
-	button.innerText = label;
-	button.className = `btn ${markupTag === 'link' || markupTag === 'preview' ? 'blue_btn' : ''} btn_small`;
-	button.style = formatButtonStyles[label];
-	button.dataset.markupTag = markupTag;
-	button.dataset.flexSide = flexSide;
-	button.setAttribute('id', `${label.toLowerCase()}-button`);
-	return button;
+  const button = document.createElement('div');
+  button.innerText = label;
+  button.className = `btn ${markupTag === 'link' || markupTag === 'preview' ? 'blue_btn' : ''} btn_small`;
+  button.style = formatButtonStyles[label];
+  button.dataset.markupTag = markupTag;
+  button.dataset.flexSide = flexSide;
+  button.setAttribute('id', `${label.toLowerCase()}-button`);
+  return button;
 };
 const createButtonContainer = () => {
   const container = document.createElement('div');
   container.style = 'display: flex; justify-content: space-between;';
-	container.setAttribute('id', `button-container`);
+  container.setAttribute('id', `button-container`);
   return container;
 };
 const createButtonSubContainer = (flexSide) => {
   const container = document.createElement('div');
   container.style = 'display: flex; margin: 10px 0px; gap: 3px;';
-	container.dataset.flexSide = flexSide;
+  container.dataset.flexSide = flexSide;
   return container;
 };
 const createDropdownOption = ([value, label]) => {
   const option = document.createElement('option');
   option.innerText = label;
-	option.setAttribute('value', value);
+  option.setAttribute('value', value);
   return option;
 };
 
@@ -102,49 +102,49 @@ previewContainer.appendChild(previewBox);
 descriptionTextarea.before(buttonContainer);
 buttonSubContainers.forEach(subContainer => buttonContainer.appendChild(subContainer));
 formatButtons.forEach(button => buttonSubContainers
-	.find(subContainer => subContainer.dataset.flexSide === button.dataset.flexSide)
-	.appendChild(button));
+  .find(subContainer => subContainer.dataset.flexSide === button.dataset.flexSide)
+  .appendChild(button));
 
 // create color dropdown
 const colorDropdown = document.createElement('select');
 colorDropdownOptions
-	.map(createDropdownOption)
-	.forEach(option => colorDropdown.appendChild(option));
+  .map(createDropdownOption)
+  .forEach(option => colorDropdown.appendChild(option));
 // place color dropdown just right to the color button
 colorButton.after(colorDropdown);
 
 const getMarkupTags = markupTag => markupTag === 'link'
   ? [`[${prompt('please paste your link here')},`, `]`]
-	: markupTag === 'color'
-	? [`[${markupTag} ${colorDropdown.value}]`, `[/${markupTag}]`]
+  : markupTag === 'color'
+  ? [`[${markupTag} ${colorDropdown.value}]`, `[/${markupTag}]`]
   : [`[${markupTag}]`, `[/${markupTag}]`];
 
 // update color button background when selecting a new color from the dropdown
 fromEvent(colorDropdown, 'change')
-	.pipe(
-		map(event => event.target.value),
-		startWith(pipe(head, head)(colorDropdownOptions)),
-	)
-	.subscribe(selectedColor => colorButton.style.backgroundColor = selectedColor);
+  .pipe(
+    map(event => event.target.value),
+    startWith(pipe(head, head)(colorDropdownOptions)),
+  )
+  .subscribe(selectedColor => colorButton.style.backgroundColor = selectedColor);
 
 // configure events for buttons that add formatting
 merge(...formatButtons.map(button => fromEvent(button, 'click')))
-	.pipe(
-		filter(({ target }) => target.dataset.markupTag !== 'preview'),
-		map(({ target }) => getMarkupTags(target.dataset.markupTag)),
-	)
-	.subscribe(([startTag, endTag]) => {
-  	$(descriptionTextarea).surroundSelectedText(startTag, endTag);
+  .pipe(
+    filter(({ target }) => target.dataset.markupTag !== 'preview'),
+    map(({ target }) => getMarkupTags(target.dataset.markupTag)),
+  )
+  .subscribe(([startTag, endTag]) => {
+    $(descriptionTextarea).surroundSelectedText(startTag, endTag);
   });
 
 // show preview area when clicking the preview button
 // giovanni
 fromEvent(previewButton, 'click')
-	.pipe(map(() => previewContainer.style.display === 'none' ? ['flex', 'none', 'edit'] : ['none', '', 'preview']))
-	.subscribe(([previewContainerDisplay, descriptionTextareaDisplay, previewButtonLabel]) => {
-		previewContainer.style.display = previewContainerDisplay;
-		descriptionTextarea.style.display = descriptionTextareaDisplay;
-		previewButton.innerText = previewButtonLabel;
-		unsafeWindow.previewO('item_description');
-	});
+  .pipe(map(() => previewContainer.style.display === 'none' ? ['flex', 'none', 'edit'] : ['none', '', 'preview']))
+  .subscribe(([previewContainerDisplay, descriptionTextareaDisplay, previewButtonLabel]) => {
+    previewContainer.style.display = previewContainerDisplay;
+    descriptionTextarea.style.display = descriptionTextareaDisplay;
+    previewButton.innerText = previewButtonLabel;
+    unsafeWindow.previewO('item_description');
+  });
 
